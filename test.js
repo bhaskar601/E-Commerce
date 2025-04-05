@@ -2,11 +2,12 @@ const { exec } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
-// Customize this if needed
+// Automatically generate a commit message with date and time
 const commitMessage = `Auto-commit at ${new Date().toLocaleString()}`;
 
+// Update the README.md file with a new section
 function updateReadme() {
-  const filePath = path.join(process.cwd(), "read.md");
+  const filePath = path.join(process.cwd(), "README.md");
   const newContent = `\n## Auto-commit setup added on ${new Date().toDateString()} 🚀\n`;
 
   try {
@@ -17,6 +18,7 @@ function updateReadme() {
   }
 }
 
+// Run shell commands like git add, commit, push
 function runCommand(command, cwd = process.cwd()) {
   return new Promise((resolve, reject) => {
     exec(command, { cwd }, (error, stdout, stderr) => {
@@ -30,13 +32,17 @@ function runCommand(command, cwd = process.cwd()) {
   });
 }
 
+// Main function to perform git operations
 async function autoCommit() {
   try {
     console.log("🚀 Starting auto-commit process...");
 
     await runCommand("git add .");
     await runCommand(`git commit -m "${commitMessage}"`);
-    await runCommand("git push origin main");
+
+    // Automatically detect the current branch name
+    const branch = await runCommand("git rev-parse --abbrev-ref HEAD");
+    await runCommand(`git push origin ${branch}`);
 
     console.log("🎉 All changes pushed to GitHub!");
   } catch (err) {
@@ -44,6 +50,6 @@ async function autoCommit() {
   }
 }
 
-// First update README, then commit
+// Start process: update readme and commit
 updateReadme();
 autoCommit();
